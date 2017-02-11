@@ -6,27 +6,34 @@ class GPIODriver(object):
         print("init gpio driver")
         self._pwm_pins = {}
 
-    def define_pin(self, pin, io_type, **kwargs):
-        if io_type == "in":
-            GPIO.setup(pin, GPIO.IN)
-        elif io_type == "out":
-            GPIO.setup(pin, GPIO.OUT)
-        elif io_type == "pwm":
-            GPIO.setup(pin, GPIO.OUT)
-            pwm = GPIO.PWM(pin, kwargs.get("frequency", 60))
-            self._pwm_pins[pin] = pwm
+    def define_pin_in(self, pin):
+        GPIO.setup(pin, GPIO.IN)
 
-    def set_pin(self, pin, state):
-        if state:
-            GPIO.output(pin, GPIO.HIGH)
-        else:
-            GPIO.output(pin, GPIO.LOW)
+    def define_pin_out(self, pin, io_type, **kwargs):
+        GPIO.setup(pin, GPIO.OUT)
+
+    def define_pin_pwm(self, pin, frequency):
+        GPIO.setup(pin, GPIO.OUT)
+        pwm_pin = GPIO.PWM(pin, frequency)
+        self._pwm_pins[pin] = pwm_pin
+
+    def set_pin_low(self, pin):
+        GPIO.output(pin, GPIO.LOW)
+
+    def set_pin_high(self, pin):
+        GPIO.output(pin, GPIO.HIGH)
 
     def get_pin(self, pin):
         return GPIO.input(pin)
 
-    def listen_pin(self, pin):
-        print("listen pin")
+    def start_pwm(self, pin, duty_cycle):
+        self._pwm_pins[pin].start(duty_cycle)
 
-    def set_duty_cycle(self, pin, duty_cycle):
-        self._pwm_pins[pin].ChangeDutyCycle(duty_cycle)
+    def stop_pwm(self, pin):
+        self._pwm_pins[pin].stop
+
+    def listen_rising_pin(self, pin, callback):
+        GPIO.add_event_detect(pin, GPIO.RISING, callback=callback)
+
+    def listen_falling_pin(self, pin, callback):
+        GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback)

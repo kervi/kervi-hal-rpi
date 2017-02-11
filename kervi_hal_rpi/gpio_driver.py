@@ -7,9 +7,9 @@ class GPIODriver(object):
         self._pwm_pins = {}
 
     def define_pin_in(self, pin):
-        GPIO.setup(pin, GPIO.IN)
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    def define_pin_out(self, pin, io_type, **kwargs):
+    def define_pin_out(self, pin):
         GPIO.setup(pin, GPIO.OUT)
 
     def define_pin_pwm(self, pin, frequency):

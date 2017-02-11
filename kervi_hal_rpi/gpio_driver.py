@@ -1,9 +1,9 @@
 import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BOARD)
+
 
 class GPIODriver(object):
     def __init__(self):
-        print("init gpio driver")
+        GPIO.setmode(GPIO.BOARD)
         self._pwm_pins = {}
 
     def define_pin_in(self, pin):
@@ -32,8 +32,14 @@ class GPIODriver(object):
     def stop_pwm(self, pin):
         self._pwm_pins[pin].stop
 
-    def listen_rising_pin(self, pin, callback):
-        GPIO.add_event_detect(pin, GPIO.RISING, callback=callback)
+    def listen_pin(self, pin, callback, bounce_time=200):
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(pin, GPIO.BOTH, callback=callback, bouncetime=bounce_time)
 
-    def listen_falling_pin(self, pin, callback):
-        GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback)
+    def listen_rising_pin(self, pin, callback, bounce_time=200):
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(pin, GPIO.RISING, callback=callback, bouncetime=bounce_time)
+
+    def listen_falling_pin(self, pin, callback, bounce_time=200):
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback, bouncetime=bounce_time)

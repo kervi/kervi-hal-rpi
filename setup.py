@@ -15,7 +15,8 @@ setup(
         "kervi_hal_rpi",
     ],
     install_requires=[
-        'psutil'
+        'psutil',
+        'Adafruit_GPIO'
     ],
 
 )

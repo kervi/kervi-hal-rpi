@@ -10,7 +10,7 @@ except:
 setup(
     name='kervi-hal-rpi',
     version=VERSION,
-    description="""Hardware abstraction layer for the Kervi automation framework""",
+    description="""Raspberry pi hardware abstraction layer for the Kervi automation framework""",
     packages=[
         "kervi_hal_rpi",
     ],

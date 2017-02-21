@@ -29,7 +29,7 @@ class GPIODriver(IGPIODeviceDriver):
         self._pwm_pins[pin].start(duty_cycle)
 
     def pwm_stop(self, pin):
-        self._pwm_pins[pin].stop
+        self._pwm_pins[pin].stop()
 
     def listen(self, pin, callback, bounce_time=0):
         if bounce_time > 0:
@@ -38,13 +38,7 @@ class GPIODriver(IGPIODeviceDriver):
             GPIO.add_event_detect(pin, GPIO.BOTH, callback=callback)
 
     def listen_rising(self, pin, callback, bounce_time=0):
-        if bounce_time > 0:
-            GPIO.add_event_detect(pin, GPIO.RISING, callback=callback, bouncetime=bounce_time)
-        else:
-            GPIO.add_event_detect(pin, GPIO.RISING, callback=callback)
+        GPIO.add_event_detect(pin, GPIO.RISING, callback=callback, bouncetime=bounce_time)
 
     def listen_falling(self, pin, callback, bounce_time=0):
-        if bounce_time > 0:
-            GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback, bouncetime=bounce_time)
-        else:
-            GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback)
+        GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback, bouncetime=bounce_time)

@@ -1,7 +1,9 @@
-from kervi.camera import FrameCameraDeviceDriver
-from PIL import Image, ImageDraw
-import picamera
+import io
 import time
+from PIL import Image, ImageDraw
+from kervi.camera import FrameCameraDeviceDriver
+import picamera
+
 
 class CameraDriver(FrameCameraDeviceDriver):
     def __init__(self):
@@ -9,14 +11,15 @@ class CameraDriver(FrameCameraDeviceDriver):
 
     def capture_frames(self):
         with picamera.PiCamera() as camera:
+            print("start Raspberry Pi camera")
             camera.resolution = (self.camera.width, self.camera.height)
-            camera.framerate = self.camera.fps
+            camera.framerate =  self.camera.fps
             time.sleep(2)
             stream = io.BytesIO()
-            for foo in camera.capture_continous(stream, format="jpeg", use_video_port=True):
+            for foo in camera.capture_continuous(stream, format="jpeg", use_video_port=True):
                 stream.seek(0)
                 image = Image.open(stream)
-                self.frame_ready(image)
+                self.frame_ready(image.copy())
                 stream.seek(0)
                 self.wait_next_frame()
                 if self.terminate:

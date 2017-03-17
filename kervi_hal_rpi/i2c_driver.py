@@ -1,5 +1,5 @@
 import Adafruit_GPIO.I2C as I2C
-from  kervi.utility.hal.i2c import  II2CDeviceDriver
+from  kervi.hal.i2c import  II2CDeviceDriver
 
 class I2CDeviceDriver(II2CDeviceDriver):
     """

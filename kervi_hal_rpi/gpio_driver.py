@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from kervi.utility.hal.gpio import IGPIODeviceDriver
+from kervi.hal.gpio import IGPIODeviceDriver
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -17,7 +17,7 @@ class GPIODriver(IGPIODeviceDriver):
     def define_as_pwm(self, pin, frequency):
         GPIO.setup(pin, GPIO.OUT)
         pwm_pin = GPIO.PWM(pin, frequency)
-        self._pwm_pins[pin] = pwm_pin
+        self._pwm_pins[pin] = [pwm_pin,0]
 
     def set(self, pin, state):
         GPIO.output(pin, state)
@@ -25,11 +25,14 @@ class GPIODriver(IGPIODeviceDriver):
     def get(self, pin):
         return GPIO.input(pin)
 
-    def start_pwm(self, pin, duty_cycle, frequency=None):
-        self._pwm_pins[pin].start(duty_cycle)
+    def pwm_start(self, pin, duty_cycle=None, frequency=None):
+        if duty_cycle!=None:
+            self._pwm_pins[pin][1] = duty_cycle
+
+        self._pwm_pins[pin][0].start(self._pwm_pins[pin][1])   
 
     def pwm_stop(self, pin):
-        self._pwm_pins[pin].stop()
+        self._pwm_pins[pin][0].stop()
 
     def listen(self, pin, callback, bounce_time=0):
         if bounce_time > 0:

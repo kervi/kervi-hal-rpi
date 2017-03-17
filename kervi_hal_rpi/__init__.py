@@ -8,5 +8,8 @@ def get_gpio_driver():
 def get_i2c_driver(address, bus):
     return i2c_driver.I2CDeviceDriver(address, bus)
 
+def default_i2c_bus():
+    return 0
+
 def get_camera_driver(source):
     return camera_driver.CameraDriver()

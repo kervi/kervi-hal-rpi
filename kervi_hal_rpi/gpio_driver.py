@@ -1,3 +1,5 @@
+# Copyright (c) 2016, Tim Wentzlau
+# Licensed under MIT
 import RPi.GPIO as GPIO
 from kervi.utility.hal.gpio import IGPIODeviceDriver
 

@@ -14,6 +14,9 @@ class CameraDriver(FrameCameraDeviceDriver):
             print("start Raspberry Pi camera")
             camera.resolution = (self.camera.width, self.camera.height)
             camera.framerate =  self.camera.fps
+            camera.hflip = self.camera.flip_horizontal
+            camera.vflip = self.camera.flip_vertical
+            camera.shutter_speed = 0
             time.sleep(2)
             stream = io.BytesIO()
             for foo in camera.capture_continuous(stream, format="jpeg", use_video_port=True):

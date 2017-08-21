@@ -7,8 +7,8 @@ def get_i2c_driver(address, bus):
     return i2c_driver.I2CDeviceDriver(address, bus)
 
 def get_one_wire_driver(address):
-    from . import one_wire_driver
-    return one_wire_driver.OneWireDeviceDriver(address, bus)
+    from . import one_wire
+    return one_wire.OneWireDeviceDriver(address)
 
 def default_i2c_bus():
     return 0

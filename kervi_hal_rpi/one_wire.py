@@ -11,6 +11,6 @@ class OneWireDeviceDriver(OneWire):
 
     def read_raw(self):
         tempfile = open(BASE_DIR+self.address+"/w1_slave")
-        text = tempfile.read()
+        text = tempfile.readlines()
         tempfile.close()
         return text

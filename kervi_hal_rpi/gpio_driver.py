@@ -68,10 +68,10 @@ class GPIODriver(IGPIODeviceDriver):
     def define_as_output(self, pin):
         GPIO.setup(int(pin), GPIO.OUT)
 
-    def define_as_pwm(self, pin, frequency):
+    def define_as_pwm(self, pin, frequency, duty_cycle):
         GPIO.setup(int(pin), GPIO.OUT)
         pwm_pin = GPIO.PWM(int(pin), frequency)
-        self._pwm_pins[int(pin)] = [pwm_pin,0]
+        self._pwm_pins[int(pin)] = [pwm_pin, duty_cycle]
 
     def set(self, pin, state):
         GPIO.output(int(pin), state)
@@ -83,7 +83,7 @@ class GPIODriver(IGPIODeviceDriver):
         if duty_cycle!=None:
             self._pwm_pins[int(pin)][1] = duty_cycle
 
-        self._pwm_pins[int(pin)][0].start(self._pwm_pins[pin][1])   
+        self._pwm_pins[int(pin)][0].start(self._pwm_pins[int(pin)][1])   
 
     def pwm_stop(self, pin):
         self._pwm_pins[int(pin)][0].stop()

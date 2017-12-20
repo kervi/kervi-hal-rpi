@@ -1,6 +1,10 @@
 import distutils
 from setuptools import setup
-from kervi_hal_rpi.version import VERSION
+
+try:
+    from kervi.platforms.raspberry.version import VERSION
+except:
+    VERSION = "0.0"
 
 try:
     distutils.dir_util.remove_tree("dist")
@@ -12,7 +16,7 @@ setup(
     version=VERSION,
     description="""Raspberry pi hardware abstraction layer for the Kervi automation framework""",
     packages=[
-        "kervi_hal_rpi",
+        "kervi.platforms.raspberry",
     ],
     install_requires=[
         'Adafruit_GPIO'

@@ -1,7 +1,7 @@
 import io
 import time
 from PIL import Image, ImageDraw
-from kervi.camera import FrameCameraDeviceDriver
+from kervi.vision.camera import FrameCameraDeviceDriver
 import picamera
 
 

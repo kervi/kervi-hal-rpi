@@ -16,3 +16,6 @@ def default_i2c_bus():
 def get_camera_driver(source):
     from . import camera_driver
     return camera_driver.CameraDriver()
+
+def service_commands(commands, app_name, app_id, script_path):
+    print("rpi service commands: ", commands, app_name, app_id, script_path)

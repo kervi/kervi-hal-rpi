@@ -19,3 +19,5 @@ def get_camera_driver(source):
 
 def service_commands(commands, app_name, app_id, script_path):
     print("rpi service commands: ", commands, app_name, app_id, script_path)
+    from . import service
+    service.handle_command(commands, app_name, app_id, script_path)

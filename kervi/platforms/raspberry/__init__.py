@@ -21,3 +21,37 @@ def service_commands(commands, app_name, app_id, script_path):
     print("rpi service commands: ", commands, app_name, app_id, script_path)
     from . import service
     service.handle_command(commands, app_name, app_id, script_path)
+
+def get_user_inputs():
+    import inputs
+    return inputs.devices
+
+def detect_devices():
+    import inputs
+    input_devices = {
+        "keyboard": [],
+        "mouse": [],
+        "game_pad": [],
+        "other_device": []
+    }
+    for device in inputs.devices:
+        type = None
+        if isinstance(device, inputs.Keyboard):
+            type = "keyboard"
+        if isinstance(device, inputs.Mouse):
+            type = "mouse"
+        if isinstance(device, inputs.GamePad):
+            type = "game_pad"
+
+        if isinstance(device, inputs.OtherDevice):
+            type = "other_device"
+
+        if type:
+            input_devices[type] += [{
+                "name": device.name,
+                "path": "?" #device.get_char_device_path()
+            }]
+    
+    return {
+        "inputs": input_devices
+    }

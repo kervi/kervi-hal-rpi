@@ -30,19 +30,34 @@ class CameraDriver(FrameCameraDeviceDriver):
         self._buffer_type = "jpeg"
 
     def capture_frames(self):
-        with picamera.PiCamera() as camera:
-            print("start Raspberry Pi camera")
-            camera.resolution = (self.camera.width, self.camera.height)
-            camera.framerate =  self.camera.fps
-            camera.hflip = self.camera.flip_horizontal
-            camera.vflip = self.camera.flip_vertical
-            camera.shutter_speed = 0
-            time.sleep(2)
-            output = _StreamingMPEGBuffer(self)
-            
-            camera.start_recording(output, format='mjpeg')
-            while not self.terminate:
-                time.sleep(1)
-            camera.stop_recording()
-            
+        import subprocess
+        c = subprocess.check_output(["vcgencmd", "get_camera"])
+        c = c[:-1].decode("utf-8")
+        detected = False
+        try:
+            c.index("supported=1")
+        except ValueError:
+            print("Camera not enabled in raspi config")
 
+        try:
+            c.index("detected=1")
+            detected = True
+        except ValueError:
+            print("camera no connected")
+            pass
+
+        if detected:
+            with picamera.PiCamera() as camera:
+                print("start Raspberry Pi camera")
+                camera.resolution = (self.camera.width, self.camera.height)
+                camera.framerate =  self.camera.fps
+                camera.hflip = self.camera.flip_horizontal
+                camera.vflip = self.camera.flip_vertical
+                camera.shutter_speed = 0
+                time.sleep(2)
+                output = _StreamingMPEGBuffer(self)
+                
+                camera.start_recording(output, format='mjpeg')
+                while not self.terminate:
+                    time.sleep(1)
+                camera.stop_recording()

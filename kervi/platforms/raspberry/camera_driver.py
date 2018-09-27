@@ -43,7 +43,7 @@ class CameraDriver(FrameCameraDeviceDriver):
             c.index("detected=1")
             detected = True
         except ValueError:
-            print("camera no connected")
+            print("PI camera not connected")
             pass
 
         if detected:

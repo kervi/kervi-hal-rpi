@@ -26,14 +26,128 @@ def get_user_inputs():
     import inputs
     return inputs.devices
 
+def getrevision():
+  # Extract board revision from cpuinfo file
+  revision = "?"
+  try:
+    f = open('/proc/cpuinfo','r')
+    for line in f:
+      if line[0:8]=='Revision':
+        length=len(line)
+        revision = line[11:length-1]
+    f.close()
+
+
+  except:
+    revision = "?"
+ 
+  #from https://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-version/
+  models = [ 
+    
+    {
+        "revisions": ["0002", "0003"],
+        "name": "Model B Rev 1",
+        "ram": "256MB"
+    },
+    {
+        "revisions": ["0004", "0005", "0006"],
+        "name": "Model B Rev 2",
+        "ram": "256MB"
+    },
+    {
+        "revisions": ["0007", "0008", "0009"],
+        "name": "Model A",
+        "ram": "256MB"
+    },
+    {
+        "revisions": ["000d", "000e", "000f"],
+        "name": "Model B Rev 2",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["0011", "0014"],
+        "name": "Compute Module",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["0012", "0015"],
+        "name": "Model A+",
+        "ram": "256MB"
+    },
+    {
+        "revisions": ["0016"],
+        "name": "Model A+",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["a01041", "a21041"],
+        "name": "Pi 2 Model B v1.1",
+        "ram": "1GB"
+    },
+    {
+        "revisions": ["a22042"],
+        "name": "Pi 2 Model B v1.2",
+        "ram": "1GB"
+    },
+    {
+        "revisions": ["900092"],
+        "name": "Pi Zero v1.2",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["900093"],
+        "name": "Pi Zero v1.3",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["9000c1"],
+        "name": "Pi Zero W",
+        "ram": "512MB"
+    },
+    {
+        "revisions": ["a22082", "a02082"],
+        "name": "Pi 3 Model B",
+        "ram": "1GB"
+    },
+    {
+        "revisions": ["a020d3"],
+        "name": "Pi 3 Model B+",
+        "ram": "1GB"
+    }
+    
+      
+  ]
+
+  for model in models:
+      if revision in model["revisions"]:
+          return model
+  
+  return {
+        "revisions": ["?"],
+        "name": "Unknown model",
+        "ram": "?"
+    }
+
 def detect_devices():
     import inputs
-    input_devices = {
-        "keyboard": [],
-        "mouse": [],
-        "game_pad": [],
-        "other_device": []
-    }
+
+    import subprocess
+    c = subprocess.check_output(["vcgencmd", "get_camera"])
+    c = c[:-1].decode("utf-8")
+    cam = ""
+    try:
+        c.index("supported=1")
+        try:
+            c.index("detected=1")
+            cam = "connected"
+        except ValueError:
+            cam = "not connected"
+    except ValueError:
+        cam = "not enabled in raspi config"
+        
+        
+
+    input_devices = {}
     for device in inputs.devices:
         type = None
         if isinstance(device, inputs.Keyboard):
@@ -47,11 +161,23 @@ def detect_devices():
             type = "other_device"
 
         if type:
+            if not type in input_devices.keys():
+                input_devices[type] = [] 
             input_devices[type] += [{
                 "name": device.name,
                 "path": "?" #device.get_char_device_path()
             }]
     
+    revision = getrevision()
+
     return {
-        "inputs": input_devices
+        "Platform": [{
+            "name": "Raspberry pi",
+            "model": revision["name"],
+            "ram": revision["ram"]
+        }],
+        "inputs": input_devices,
+        "cams":{
+            "PI Camera" : cam
+        }
     }

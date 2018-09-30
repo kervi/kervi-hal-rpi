@@ -13,14 +13,23 @@ def get_one_wire_driver(address):
 def default_i2c_bus():
     return 0
 
+def shutdown():
+    import subprocess
+    import sys
+    subprocess.run(["sudo", "shutdown", "now"], stderr=sys.stderr)
+
+def reboot():
+    import subprocess
+    import sys
+    subprocess.run(["sudo", "shutdown", "-r", "now"], stderr=sys.stderr)
+
 def get_camera_driver(source):
     from . import camera_driver
     return camera_driver.CameraDriver()
 
 def service_commands(commands, app_name, app_id, script_path):
-    print("rpi service commands: ", commands, app_name, app_id, script_path)
     from . import service
-    service.handle_command(commands, app_name, app_id, script_path)
+    service.service_manager(commands, app_name, app_id, script_path)
 
 def get_user_inputs():
     import inputs

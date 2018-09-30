@@ -1,96 +1,83 @@
-import os, sys, string, time
-
-def HandleCommandLine(cls, command, customInstallOptions = "", customOptionHandler = None):
-    """Utility function allowing services to process the command line.
-    Allows standard commands such as 'start', 'stop', 'debug', 'install' etc.
-    Install supports 'standard' command line options prefixed with '--', such as
-    --username, --password, etc.  In addition,
-    the function allows custom command line options to be handled by the calling function.
-    """
-    err = 0
-
-    
-    serviceName = cls._svc_name_
-    serviceDisplayName = cls._svc_display_name_
-    serviceClassString = "aservice"
-
-    # Pull apart the command line
-    import getopt
-    opts = []
-    args = []
-    
-    userName = None
-    password = None
-    startup = None
-    delayedstart = None
-    interactive = None
-    waitSecs = 0
-    for opt, val in opts:
-        if opt=='--username':
-            userName = val
-        elif opt=='--password':
-            password = val
-        elif opt=='--wait':
-            try:
-                waitSecs = int(val)
-            except ValueError:
-                print("--wait must specify an integer number of seconds.")
-                
-
-    arg=command
-    knownArg = 0
-    # First we process all arguments which pass additional args on
-    if arg=="start":
-        knownArg = 1
-        print("Starting service %s" % (serviceName))
-        try:
-            print("start")
-        except Exception as ex:
-            print("Error starting service:", ex)
+import os
+import sys
+import subprocess
             
+from kervi.core.utility.superformatter import SuperFormatter
 
-    elif arg=="restart":
-        print("restart")
-        knownArg = 1
-        print("Restarting service %s" % (serviceName))
-        
+_service_file_template = """
+[Unit]
+Description=Kervi python application: {app_name}
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory={script_path}
+ExecStart={python_path} {script_file} --as-service
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+_install_path = "/etc/systemd/system/"
+
+
+def service_manager(commands, app_name, app_id, script_file):
     
-    #if not knownArg and len(args)!=1:
-    #    usage() # the rest of the cmds don't take addn args
+    service_name = "kervi_service_" + app_id
+    service_file_path = _install_path + "kervi_service_" + app_id + ".service"
 
-    if arg=="install":
-        print("Installing service %s" % (serviceName,))
-        # Note that we install the service before calling the custom option
-        # handler, so if the custom handler fails, we have an installed service (from NT's POV)
-        # but is unlikely to work, as the Python code controlling it failed.  Therefore
-        # we remove the service if the first bit works, but the second doesnt!
+    parts = os.path.split(script_file)
+    script_path = parts[0]
+
+    for command in commands:
+        if command=="start":
+            print("Starting service %s" % (service_name))
+            try:
+                print("start service:", service_name)
+                subprocess.check_call(["systemctl", "start", service_name], stderr=sys.stderr, stdout=sys.stdout)
+            except Exception as ex:
+                print("Error starting service:", ex)
+
+        elif command=="stop":
+            print("Stopping service %s" % (service_name))
+            subprocess.check_call(["systemctl", "stop", service_name])
         
-    if arg == "update":
-        print("Changing service configuration")
+        elif command=="restart":
+            print("Restarting service %s" % (service_name))
+            subprocess.check_call(["systemctl", "restart", service_name])
         
-    elif arg=="remove":
-        knownArg = 1
-        print("Removing service %s" % (serviceName))
+        elif command == "status":
+            print("get status for service", service_name)
+            subprocess.check_call(["systemctl", "status", service_name], stderr=sys.stderr, stdout=sys.stdout)
+
+        elif command=="install":
+            print("Installing kervi application as service %s" % (service_name))
+            if os.path.isfile(service_file_path):
+                print("service installed, please uninstall first")
+                return
+            sf = SuperFormatter()
+            service_file_text = sf.format(
+                _service_file_template,
+                python_path = sys.executable,
+                script_file= script_file,
+				script_path= script_path,
+                app_name=app_name
+            )
+
+            with open(service_file_path, "w") as text_file:
+                text_file.write(service_file_text)
+            subprocess.run(["systemctl", "daemon-reload"], stderr=sys.stderr)
+            subprocess.run(["systemctl", "enable", service_name], stderr=sys.stderr)
+
+        elif command=="uninstall":
+            print("uninstall service %s" % (service_name))
+            subprocess.run(["systemctl", "stop", service_name], stderr=sys.stderr)
+            subprocess.run(["systemctl", "disable", service_name], stderr=sys.stderr)
+            os.remove(service_file_path)
+            subprocess.run(["systemctl", "daemon-reload"], stderr=sys.stderr)
+
+            
+            
+        else:
+            print("Unknown command - '%s'" % command)
         
-    elif arg=="stop":
-        knownArg = 1
-        print("Stopping service %s" % (serviceName))
-        
-    if not knownArg:
-        err = -1
-        print("Unknown command - '%s'" % arg)
-        #usage()
-    return err
-
-
-
-def handle_command(commands, app_name, app_id, script_path): 
-    service_command = None
-    print("yy")
-    if commands:
-
-        print("x", commands)
-        service_commands = commands
-        service_commands += ["dummy"]
-        HandleCommandLine(aservice, commands[0])
-

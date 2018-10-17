@@ -83,7 +83,7 @@ class GPIODriver(IGPIODeviceDriver):
         if duty_cycle!=None:
             self._pwm_pins[int(pin)][1] = duty_cycle
 
-        self._pwm_pins[int(pin)][0].start(self._pwm_pins[int(pin)][1])   
+        self._pwm_pins[int(pin)][0].start(self._pwm_pins[int(pin)][1])
 
     def pwm_stop(self, pin):
         self._pwm_pins[int(pin)][0].stop()
